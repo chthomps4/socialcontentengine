@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
+  filterPostsByWeek,
   approvalQueue,
   buildAssetFilename,
+  generatePullRequestBody,
   generateThemeReport,
   mergeMetrics,
+  summarizeMetrics,
   validatePosts
 } from '../src/content.mjs';
 
@@ -69,4 +72,44 @@ test('metrics import updates matching posts and report ranks themes', () => {
   assert.equal(updated[0].engagements, '25');
   assert.match(generateThemeReport(updated), /systems/);
   assert.match(generateThemeReport(updated), /25.0%/);
+});
+
+test('week filter scopes content to seven days from week start', () => {
+  const rows = [
+    basePost,
+    { ...basePost, id: 'in-week', date: '2026-06-07' },
+    { ...basePost, id: 'out-of-week', date: '2026-06-08' }
+  ];
+
+  const filtered = filterPostsByWeek(rows, '2026-06-01');
+  assert.deepEqual(filtered.map((post) => post.id), ['bsw-test-linkedin', 'in-week']);
+});
+
+test('metrics summary and PR body include required weekly fields', () => {
+  const metricsSummary = summarizeMetrics([{
+    ...basePost,
+    impressions: '200',
+    engagements: '50',
+    clicks: '12',
+    conversions: '3'
+  }]);
+
+  const prBody = generatePullRequestBody({
+    weekStart: '2026-06-08',
+    filesChanged: ['data/content_calendar.csv'],
+    weekPosts: [basePost],
+    approvalQueueCount: 1,
+    imagePromptBatchLocation: 'exports/weeks/2026-06-08/image_prompts.csv',
+    metricsSummary,
+    testsRun: ['npm test'],
+    assumptions: ['Generated drafts remain pending_review.'],
+    backlog: ['Add PR automation.']
+  });
+
+  assert.match(prBody, /## Summary/);
+  assert.match(prBody, /## Files Changed/);
+  assert.match(prBody, /## Approval Queue Count/);
+  assert.match(prBody, /## Image Prompt Batch Location/);
+  assert.match(prBody, /## Metrics\/Report Summary/);
+  assert.match(prBody, /25.0% engagement rate/);
 });

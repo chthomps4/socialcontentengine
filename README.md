@@ -47,9 +47,11 @@ Generate review assets:
 npm run export:markdown
 npm run export:image-prompts
 npm run report
+npm run prepare:week
 ```
 
 Outputs are written to `exports/`.
+Weekly automation artifacts are written to `exports/weeks/YYYY-MM-DD/`.
 
 ## Common Commands
 
@@ -60,6 +62,7 @@ npm run export:markdown
 npm run export:image-prompts
 npm run import:metrics
 npm run daily-pack
+npm run prepare:week
 npm run report
 ```
 
@@ -68,6 +71,7 @@ You can pass file paths directly to the CLI:
 ```bash
 node scripts/socialcontentengine.mjs export-markdown --source data/content_calendar.csv --out exports/content_review.md
 node scripts/socialcontentengine.mjs import-metrics --source data/content_calendar.csv --metrics data/weekly_metrics_sample.csv --out data/content_calendar.csv
+node scripts/socialcontentengine.mjs prepare-week --source data/content_calendar.csv --week-start 2026-06-08
 ```
 
 ## Data Model
@@ -147,6 +151,20 @@ The PR should include:
 - Risks and assumptions
 
 See `docs/github_workflow.md` for the full flow.
+
+## Weekly Package Output
+
+The `prepare-week` command generates a review bundle for a single Monday-start week:
+
+- `exports/weeks/YYYY-MM-DD/content_review.md`
+- `exports/weeks/YYYY-MM-DD/daily_content_pack.md`
+- `exports/weeks/YYYY-MM-DD/image_prompts.csv`
+- `exports/weeks/YYYY-MM-DD/approval_queue.md`
+- `exports/weeks/YYYY-MM-DD/theme_report.md`
+- `exports/weeks/YYYY-MM-DD/content_calendar.csv`
+- `exports/weeks/YYYY-MM-DD/pull_request.md`
+
+This keeps the current calendar in `data/content_calendar.csv` while giving reviewers a stable, week-scoped artifact set.
 
 ## Environment Variables
 

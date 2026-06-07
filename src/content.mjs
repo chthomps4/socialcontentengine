@@ -139,6 +139,23 @@ export function generateMarkdownReview(posts, options = {}) {
   return `${lines.join('\n').trim()}\n`;
 }
 
+export function addDays(dateText, days) {
+  const date = new Date(`${dateText}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+export function filterPostsByDateRange(posts, startDate, endDate) {
+  return posts
+    .map(normalizePost)
+    .filter((post) => post.date >= startDate && post.date <= endDate)
+    .sort((a, b) => `${a.date}${a.platform}${a.id}`.localeCompare(`${b.date}${b.platform}${b.id}`));
+}
+
+export function filterPostsByWeek(posts, weekStart) {
+  return filterPostsByDateRange(posts, weekStart, addDays(weekStart, 6));
+}
+
 function groupBy(items, keySelector) {
   const grouped = new Map();
   items.forEach((item) => {
@@ -271,6 +288,88 @@ export function generateThemeReport(posts) {
   ];
 
   return `${lines.join('\n').trim()}\n`;
+}
+
+export function summarizeMetrics(posts) {
+  const totals = posts.map(normalizePost).reduce((summary, post) => {
+    summary.posts += 1;
+    summary.impressions += numeric(post.impressions);
+    summary.engagements += numeric(post.engagements);
+    summary.clicks += numeric(post.clicks);
+    summary.conversions += numeric(post.conversions);
+    return summary;
+  }, {
+    posts: 0,
+    impressions: 0,
+    engagements: 0,
+    clicks: 0,
+    conversions: 0
+  });
+
+  const engagementRate = totals.impressions ? ((totals.engagements / totals.impressions) * 100).toFixed(1) : '0.0';
+  return {
+    ...totals,
+    engagement_rate: `${engagementRate}%`
+  };
+}
+
+export function generatePullRequestBody({
+  weekStart,
+  filesChanged = [],
+  weekPosts = [],
+  approvalQueueCount = 0,
+  imagePromptBatchLocation = '',
+  metricsSummary = {},
+  testsRun = [],
+  assumptions = [],
+  backlog = []
+}) {
+  const summary = [
+    `Prepared ${weekPosts.length} review-ready drafts for the week of ${weekStart}.`,
+    approvalQueueCount > 0
+      ? `${approvalQueueCount} items remain in the approval queue for human review.`
+      : 'No pending approval items were generated.'
+  ];
+
+  const metricLine = metricsSummary.posts
+    ? `Imported metrics across ${metricsSummary.posts} prior posts: ${metricsSummary.impressions} impressions, ${metricsSummary.engagements} engagements, ${metricsSummary.clicks} clicks, ${metricsSummary.conversions} conversions, ${metricsSummary.engagement_rate} engagement rate.`
+    : 'No metrics source was available to import this run.';
+
+  const sections = [
+    `## Summary`,
+    '',
+    ...summary.map((line) => `- ${line}`),
+    '',
+    `## Files Changed`,
+    '',
+    ...filesChanged.map((file) => `- ${file}`),
+    '',
+    `## Approval Queue Count`,
+    '',
+    `- ${approvalQueueCount}`,
+    '',
+    `## Image Prompt Batch Location`,
+    '',
+    `- ${imagePromptBatchLocation || 'Not generated'}`,
+    '',
+    `## Metrics/Report Summary`,
+    '',
+    `- ${metricLine}`,
+    '',
+    `## Tests Run`,
+    '',
+    ...testsRun.map((item) => `- ${item}`),
+    '',
+    `## Assumptions`,
+    '',
+    ...assumptions.map((item) => `- ${item}`),
+    '',
+    `## Next-Step Backlog`,
+    '',
+    ...backlog.map((item) => `- ${item}`)
+  ];
+
+  return `${sections.join('\n').trim()}\n`;
 }
 
 export async function readTemplate(filePath) {

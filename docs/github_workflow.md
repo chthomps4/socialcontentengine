@@ -21,11 +21,13 @@ Prepare social content ops for week of YYYY-MM-DD
 The PR body should include:
 
 - Summary of generated or updated content
+- Files changed
 - Approval queue count
 - Image prompt batch location
 - Metrics import/report summary
 - Tests run
 - Remaining assumptions
+- Next-step backlog
 
 ## Safety Rules
 
@@ -41,3 +43,21 @@ The PR body should include:
 - No unsupported claims are present.
 - Tests pass.
 - README/docs remain accurate.
+
+## Weekly Artifact Convention
+
+Generate review artifacts under:
+
+```text
+exports/weeks/YYYY-MM-DD/
+```
+
+Recommended contents:
+
+- `content_review.md`
+- `daily_content_pack.md`
+- `image_prompts.csv`
+- `approval_queue.md`
+- `theme_report.md`
+- `content_calendar.csv`
+- `pull_request.md`
