@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://businesssignalworkshop.com/schemas/socialcontentengine/scheduler_payload.schema.json",
+  "title": "Social Content Scheduler Payload",
+  "type": "object",
+  "required": ["post_id", "date", "brand_business", "platform", "body_copy", "approval_status"],
+  "properties": {
+    "post_id": { "type": "string" },
+    "date": { "type": "string", "format": "date" },
+    "brand_business": { "type": "string" },
+    "campaign": { "type": "string" },
+    "content_pillar": { "type": "string" },
+    "platform": {
+      "type": "string",
+      "enum": ["Facebook", "Instagram", "LinkedIn", "X", "Reddit", "newsletter"]
+    },
+    "hook": { "type": "string" },
+    "body_copy": { "type": "string" },
+    "cta": { "type": "string" },
+    "asset_filename": { "type": "string" },
+    "alt_text": { "type": "string" },
+    "hashtags": { "type": "string" },
+    "approval_status": {
+      "type": "string",
+      "const": "approved"
+    },
+    "publishing_status": {
+      "type": "string",
+      "enum": ["not_scheduled", "scheduled"]
+    }
+  },
+  "additionalProperties": false
+}
