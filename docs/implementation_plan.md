@@ -13,6 +13,7 @@
 - Run Codex every Sunday.
 - Create a branch named `codex/social-content-week-of-YYYY-MM-DD`.
 - Generate the following week's draft pack, image prompt batch, approval queue, theme report, week-scoped CSV export, and PR body.
+- Derive the following Monday automatically from the run date and seed missing weekly rows before export.
 - Commit generated changes to the branch.
 - Open a draft PR against `main` for human review.
 

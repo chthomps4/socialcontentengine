@@ -145,6 +145,19 @@ export function addDays(dateText, days) {
   return date.toISOString().slice(0, 10);
 }
 
+export function startOfWeek(dateText) {
+  const date = new Date(`${dateText}T00:00:00Z`);
+  const day = date.getUTCDay();
+  const offset = day === 0 ? -6 : 1 - day;
+  date.setUTCDate(date.getUTCDate() + offset);
+  return date.toISOString().slice(0, 10);
+}
+
+export function nextWeekStart(runDateText) {
+  const currentWeekStart = startOfWeek(runDateText);
+  return addDays(currentWeekStart, 7);
+}
+
 export function filterPostsByDateRange(posts, startDate, endDate) {
   return posts
     .map(normalizePost)
@@ -154,6 +167,159 @@ export function filterPostsByDateRange(posts, startDate, endDate) {
 
 export function filterPostsByWeek(posts, weekStart) {
   return filterPostsByDateRange(posts, weekStart, addDays(weekStart, 6));
+}
+
+function topPerformer(posts, key) {
+  return aggregateBy(posts, key)[0] || null;
+}
+
+function bestConversionPost(posts) {
+  return posts
+    .map(normalizePost)
+    .sort((a, b) => numeric(b.conversions) - numeric(a.conversions) || numeric(b.clicks) - numeric(a.clicks))[0] || null;
+}
+
+function weekSeedContext(posts, weekStart) {
+  const priorPosts = filterPostsByDateRange(posts, '0000-01-01', addDays(weekStart, -1));
+  const pillar = topPerformer(priorPosts, 'content_pillar')?.name || 'systems';
+  const campaign = topPerformer(priorPosts, 'campaign')?.name || 'social-content-ops';
+  const conversionPost = bestConversionPost(priorPosts);
+
+  return {
+    pillar,
+    campaign,
+    conversionPlatform: conversionPost?.platform || 'newsletter',
+    pillarHookLabel: pillar === 'newsletter' ? 'clear conversion-focused content' : `${pillar} posts`,
+    conversionCta: conversionPost?.cta || 'Reply with the workflow gap you want cleaned up next.'
+  };
+}
+
+function weekSeedTemplates(context) {
+  const campaignSlug = `social-content-ops-week-of`;
+  return [
+    {
+      platform: 'LinkedIn',
+      pillar: 'systems',
+      hook: `The next content week should start with the lesson that ${context.pillarHookLabel} still do the heaviest lifting.`,
+      body_copy: `The clearest signal from recent content is that practical operations themes keep earning attention because they give people a usable next step. This week's opening draft leans into that: keep the system visible, keep the workflow simple, and let every post earn its place in the weekly pack.`,
+      cta: 'Audit one part of your content system before Monday ends.',
+      image_concept: 'Weekly operations board reset with top-performing content notes',
+      image_prompt: 'Professional editorial workspace showing a weekly content operations board reset for a new week, analytics notes highlighting top-performing practical content themes, clean calendar, polished small business style, no readable text',
+      alt_text: 'A weekly content operations board reset for a new week with analytics notes and planning cards.',
+      hashtags: '#ContentOps #SystemsThinking #BusinessSignalWorkshop',
+      campaign: `${campaignSlug}-systems`
+    },
+    {
+      platform: 'Instagram',
+      pillar: 'behind-the-scenes',
+      hook: 'Behind-the-scenes content lands better when it shows the decision, not just the setup.',
+      body_copy: `One of the strongest recurring signals this month is that people save the process when they can see how a rough idea becomes a real content asset. Today's draft shows the handoff from review notes to copy, prompts, and filenames so the workflow feels repeatable instead of mysterious.`,
+      cta: 'Save this as a model for your next weekly prep session.',
+      image_concept: 'Founder turning review notes into content drafts and image prompts',
+      image_prompt: 'Bright documentary-style photo of a founder turning review notes into content drafts, image prompts, and asset filenames at a tidy desk, natural light, practical editorial style, no readable text',
+      alt_text: 'A founder turning review notes into content drafts, prompts, and filenames at a desk.',
+      hashtags: '#FounderWorkflow #ContentPlanning #BehindTheScenes',
+      campaign: `${campaignSlug}-workflow`
+    },
+    {
+      platform: 'Facebook',
+      pillar: 'education',
+      hook: 'The approval queue gets lighter when the review criteria are clearer.',
+      body_copy: `Most weekly bottlenecks are not caused by missing software. They come from unclear claims, weak proof, or assets that are not tied cleanly to the post record. This draft teaches a short review checklist that keeps human approval fast without turning the process into a heavyweight CMS.`,
+      cta: 'Comment with the review check that saves you the most time.',
+      image_concept: 'Short approval checklist tied to draft posts and asset references',
+      image_prompt: 'Warm realistic workspace showing a short approval checklist tied to draft social posts, asset references, and a weekly planner, approachable operations style, no readable text',
+      alt_text: 'A short approval checklist sits beside draft posts, asset references, and a weekly planner.',
+      hashtags: '#ContentReview #MarketingSystems #SmallBusinessOps',
+      campaign: `${campaignSlug}-approval`
+    },
+    {
+      platform: 'X',
+      pillar: 'quick-tip',
+      hook: 'Quick ops rule: if the handoff needs explanation, the filename probably does too.',
+      body_copy: `The file structure should tell you what the asset is before you open it. Date, brand, platform, campaign, pillar, and post ID are enough to keep review, design, and reporting aligned later. Small naming discipline removes a surprising amount of weekly friction.`,
+      cta: 'Use the naming pattern on your next asset batch.',
+      image_concept: 'Asset folder naming system aligned with planning and reporting',
+      image_prompt: 'Minimal desktop workspace inspired by neatly organized asset folders aligned with planning and reporting workflows, clean neutral interface, no readable text',
+      alt_text: 'Organized asset folders aligned with planning and reporting workflows.',
+      hashtags: '#AssetManagement #ContentOps #Workflow',
+      campaign: `${campaignSlug}-assets`
+    },
+    {
+      platform: 'Reddit',
+      pillar: 'community',
+      hook: `What part of your content workflow improved after you started tracking ${context.conversionPlatform} results more closely?`,
+      body_copy: `The most useful metric is the one that changes the next draft or the next checklist. Recent results suggest conversion-oriented content can reveal a lot about where the workflow is actually helping. I'm curious which metric has made you rewrite a template, tighten an approval step, or cut a content angle entirely.`,
+      cta: 'Share the metric and the workflow change it triggered.',
+      image_concept: 'Community discussion setup about content metrics and workflow changes',
+      image_prompt: 'Realistic tabletop scene with a laptop, notebook, analytics sketch, and a community discussion setup about content metrics changing workflow decisions, thoughtful research mood, no readable text',
+      alt_text: 'A laptop and notebook prepared for a discussion about content metrics and workflow changes.',
+      hashtags: '#CommunityResearch #ContentStrategy #Operations',
+      campaign: `${campaignSlug}-community`
+    },
+    {
+      platform: 'newsletter',
+      pillar: 'newsletter',
+      hook: `${context.conversionPlatform} results usually improve when the message closes one loop cleanly.`.replace(/^newsletter/, 'Newsletter'),
+      body_copy: `The best-performing conversion path in the current sample reinforces a simple rule: one practical takeaway, one obvious response path, and no extra clutter. This week's newsletter draft follows that pattern so the reader can identify the workflow gap and respond without hunting for the point.`,
+      cta: context.conversionCta,
+      image_concept: 'Calm newsletter drafting desk built around one clear operational takeaway',
+      image_prompt: 'Editorial planning desk with a drafted newsletter, tidy calendar, and one clear operational takeaway highlighted, premium but practical style, no readable text',
+      alt_text: 'A calm planning desk with a newsletter draft and one clear operational takeaway.',
+      hashtags: '#NewsletterOps #ContentSystems #BusinessSignalWorkshop',
+      campaign: `${campaignSlug}-newsletter`
+    },
+    {
+      platform: 'LinkedIn',
+      pillar: 'metrics',
+      hook: 'A weekly report earns its keep when it changes the next seven rows.',
+      body_copy: `Reporting should narrow the next decision set: repeat, refine, or retire. This week's closing draft turns recent content results into a small planning rule for the next week so the report stays connected to the calendar instead of becoming a dead-end recap.`,
+      cta: 'Pick one angle to repeat and one to retire next week.',
+      image_concept: 'Metrics review board translating report insights into next-week draft choices',
+      image_prompt: 'Clean business analytics scene with a metrics review board translating report insights into next-week draft choices, planning cards, modern editorial style, no readable text',
+      alt_text: 'A metrics review board translating report insights into next-week draft choices.',
+      hashtags: '#MarketingAnalytics #WeeklyReview #ContentStrategy',
+      campaign: `${campaignSlug}-metrics`
+    }
+  ];
+}
+
+export function seedWeekPosts(posts, weekStart) {
+  const context = weekSeedContext(posts, weekStart);
+  const createdAt = new Date().toISOString();
+
+  return weekSeedTemplates(context).map((template, index) => {
+    const date = addDays(weekStart, index);
+    const platformSlug = slugify(template.platform);
+    return normalizePost({
+      id: `bsw-${date}-${platformSlug}`,
+      date,
+      brand_business: 'Business Signal Workshop',
+      campaign: template.campaign,
+      content_pillar: template.pillar,
+      platform: template.platform,
+      hook: template.hook,
+      body_copy: template.body_copy,
+      cta: template.cta,
+      image_concept: template.image_concept,
+      image_prompt: template.image_prompt,
+      alt_text: template.alt_text,
+      hashtags: template.hashtags,
+      approval_status: 'pending_review',
+      publishing_status: 'not_scheduled',
+      final_url: '',
+      metrics: '{}',
+      impressions: '0',
+      engagements: '0',
+      clicks: '0',
+      saves: '0',
+      comments: '0',
+      shares: '0',
+      conversions: '0',
+      created_at: createdAt,
+      updated_at: createdAt
+    });
+  });
 }
 
 function groupBy(items, keySelector) {

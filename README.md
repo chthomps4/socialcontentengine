@@ -71,7 +71,9 @@ You can pass file paths directly to the CLI:
 ```bash
 node scripts/socialcontentengine.mjs export-markdown --source data/content_calendar.csv --out exports/content_review.md
 node scripts/socialcontentengine.mjs import-metrics --source data/content_calendar.csv --metrics data/weekly_metrics_sample.csv --out data/content_calendar.csv
-node scripts/socialcontentengine.mjs prepare-week --source data/content_calendar.csv --week-start 2026-06-08
+node scripts/socialcontentengine.mjs prepare-week --source data/content_calendar.csv
+node scripts/socialcontentengine.mjs prepare-week --source data/content_calendar.csv --run-date 2026-06-14
+node scripts/socialcontentengine.mjs prepare-week --source data/content_calendar.csv --week-start 2026-06-15
 ```
 
 ## Data Model
@@ -165,6 +167,8 @@ The `prepare-week` command generates a review bundle for a single Monday-start w
 - `exports/weeks/YYYY-MM-DD/pull_request.md`
 
 This keeps the current calendar in `data/content_calendar.csv` while giving reviewers a stable, week-scoped artifact set.
+
+If `--week-start` is omitted, the CLI computes the following Monday from the run date and seeds that week into `data/content_calendar.csv` when rows do not already exist.
 
 ## Environment Variables
 

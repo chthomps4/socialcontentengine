@@ -19,8 +19,10 @@ import {
   imagePromptRows,
   loadContent,
   mergeMetrics,
+  nextWeekStart,
   readTemplate,
   saveContent,
+  seedWeekPosts,
   summarizeMetrics,
   validatePosts,
   writeText
@@ -128,11 +130,12 @@ export async function run(argv = process.argv.slice(2)) {
     }
 
     case 'prepare-week': {
-      const weekStart = option(args, 'week-start', '2026-06-08');
+      const runDate = option(args, 'run-date', new Date().toISOString().slice(0, 10));
+      const weekStart = option(args, 'week-start', nextWeekStart(runDate));
       const metricsPath = option(args, 'metrics', DEFAULT_METRICS_PATH);
       const templatePath = option(args, 'template', 'prompts/daily_content_pack.md');
-      const posts = await loadContent(source);
-      const weekPosts = filterPostsByWeek(posts, weekStart);
+      let posts = await loadContent(source);
+      let weekPosts = filterPostsByWeek(posts, weekStart);
       const reviewPath = option(args, 'review-out', weekOutputPath(weekStart, 'content_review.md'));
       const promptPath = option(args, 'image-out', weekOutputPath(weekStart, 'image_prompts.csv'));
       const queuePath = option(args, 'queue-out', weekOutputPath(weekStart, 'approval_queue.md'));
@@ -140,6 +143,13 @@ export async function run(argv = process.argv.slice(2)) {
       const reportPath = option(args, 'report-out', weekOutputPath(weekStart, 'theme_report.md'));
       const csvPath = option(args, 'csv-out', weekOutputPath(weekStart, 'content_calendar.csv'));
       const prBodyPath = option(args, 'pr-out', weekOutputPath(weekStart, 'pull_request.md'));
+
+      if (weekPosts.length === 0) {
+        posts = [...posts, ...seedWeekPosts(posts, weekStart)];
+        await saveContent(source, posts);
+        weekPosts = filterPostsByWeek(posts, weekStart);
+      }
+
       const priorPosts = filterPostsByDateRange(posts, '0000-01-01', addDays(weekStart, -1));
       const metricsRows = await readCsvObjects(metricsPath);
       const metricsSummary = summarizeMetrics(mergeMetrics(priorPosts, metricsRows));
@@ -185,12 +195,12 @@ export async function run(argv = process.argv.slice(2)) {
         assumptions: [
           'Only the sample metrics file was available for import this run.',
           'Generated drafts remain pending_review and not_scheduled until a human approves them.',
-          'The June 8 package is scoped to one post per day for a seven-day review cycle.'
+          `The ${weekStart} package is scoped to one post per day for a seven-day review cycle.`
         ],
         backlog: [
-          'Add calendar generation from the run date without passing --week-start.',
           'Support brand-specific weekly bundles when multiple businesses share the calendar.',
-          'Add a dedicated PR creation/update automation step once GitHub auth is confirmed.'
+          'Add a dedicated PR creation/update automation step once GitHub auth is confirmed.',
+          'Refine seeded weekly copy generation with brand-specific prompt inputs.'
         ]
       }));
 

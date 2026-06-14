@@ -5,8 +5,8 @@
 - Add a small browser-based review UI over the CSV data.
 - Add a command to promote rows from `pending_review` to `approved` with reviewer initials.
 - Add platform-specific copy length checks.
-- Add weekly branch name calculation from the run date instead of requiring `--week-start`.
 - Add PR creation/update against GitHub once CLI auth is available in automation runs.
+- Add brand-aware weekly seed templates instead of the current default Business Signal Workshop pack.
 
 ## Data And Reporting
 

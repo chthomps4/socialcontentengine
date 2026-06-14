@@ -10,6 +10,8 @@ codex/social-content-week-of-YYYY-MM-DD
 
 Use the Monday of the prepared week as `YYYY-MM-DD`.
 
+The CLI can derive that Monday automatically from the run date when `prepare-week` runs without `--week-start`.
+
 ## Pull Requests
 
 Open a draft PR against `main`:
@@ -61,3 +63,5 @@ Recommended contents:
 - `theme_report.md`
 - `content_calendar.csv`
 - `pull_request.md`
+
+If the target week is missing from `data/content_calendar.csv`, the weekly prep step should seed seven `pending_review` rows before exporting the artifacts.

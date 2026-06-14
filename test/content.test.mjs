@@ -7,6 +7,9 @@ import {
   generatePullRequestBody,
   generateThemeReport,
   mergeMetrics,
+  nextWeekStart,
+  seedWeekPosts,
+  startOfWeek,
   summarizeMetrics,
   validatePosts
 } from '../src/content.mjs';
@@ -83,6 +86,27 @@ test('week filter scopes content to seven days from week start', () => {
 
   const filtered = filterPostsByWeek(rows, '2026-06-01');
   assert.deepEqual(filtered.map((post) => post.id), ['bsw-test-linkedin', 'in-week']);
+});
+
+test('week helpers resolve monday starts and next week from run date', () => {
+  assert.equal(startOfWeek('2026-06-14'), '2026-06-08');
+  assert.equal(nextWeekStart('2026-06-14'), '2026-06-15');
+  assert.equal(nextWeekStart('2026-06-15'), '2026-06-22');
+});
+
+test('missing weeks can be seeded into a seven-day pending review pack', () => {
+  const seeded = seedWeekPosts([{
+    ...basePost,
+    impressions: '100',
+    engagements: '30',
+    conversions: '4'
+  }], '2026-06-15');
+
+  assert.equal(seeded.length, 7);
+  assert.equal(seeded[0].date, '2026-06-15');
+  assert.equal(seeded[6].date, '2026-06-21');
+  assert.ok(seeded.every((post) => post.approval_status === 'pending_review'));
+  assert.ok(seeded.every((post) => post.publishing_status === 'not_scheduled'));
 });
 
 test('metrics summary and PR body include required weekly fields', () => {

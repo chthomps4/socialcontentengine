@@ -15,7 +15,7 @@
     "export:markdown": "node scripts/export_markdown.mjs",
     "import:csv": "node scripts/import_csv.mjs",
     "import:metrics": "node scripts/import_metrics.mjs",
-    "prepare:week": "node scripts/socialcontentengine.mjs prepare-week --week-start 2026-06-08",
+    "prepare:week": "node scripts/socialcontentengine.mjs prepare-week",
     "report": "node scripts/generate_report.mjs",
     "test": "node --test",
     "validate": "node scripts/socialcontentengine.mjs validate"
