@@ -1,0 +1,26 @@
+{
+  "name": "socialcontentengine",
+  "version": "0.1.0",
+  "description": "Lightweight social content operations system for Business Signal Workshop.",
+  "type": "module",
+  "private": false,
+  "bin": {
+    "socialcontentengine": "./scripts/socialcontentengine.mjs"
+  },
+  "scripts": {
+    "approval:queue": "node scripts/approval_queue.mjs",
+    "daily-pack": "node scripts/generate_daily_pack.mjs",
+    "export:csv": "node scripts/export_csv.mjs",
+    "export:image-prompts": "node scripts/export_image_prompts.mjs",
+    "export:markdown": "node scripts/export_markdown.mjs",
+    "import:csv": "node scripts/import_csv.mjs",
+    "import:metrics": "node scripts/import_metrics.mjs",
+    "prepare:week": "node scripts/socialcontentengine.mjs prepare-week",
+    "report": "node scripts/generate_report.mjs",
+    "test": "node --test",
+    "validate": "node scripts/socialcontentengine.mjs validate"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
