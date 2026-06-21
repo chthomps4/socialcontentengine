@@ -190,6 +190,7 @@ function weekSeedContext(posts, weekStart) {
     campaign,
     conversionPlatform: conversionPost?.platform || 'newsletter',
     pillarHookLabel: pillar === 'newsletter' ? 'clear conversion-focused content' : `${pillar} posts`,
+    pillarHookVerb: pillar === 'newsletter' ? 'does' : 'do',
     conversionCta: conversionPost?.cta || 'Reply with the workflow gap you want cleaned up next.'
   };
 }
@@ -200,7 +201,7 @@ function weekSeedTemplates(context) {
     {
       platform: 'LinkedIn',
       pillar: 'systems',
-      hook: `The next content week should start with the lesson that ${context.pillarHookLabel} still do the heaviest lifting.`,
+      hook: `The next content week should start with the lesson that ${context.pillarHookLabel} still ${context.pillarHookVerb} the heaviest lifting.`,
       body_copy: `The clearest signal from recent content is that practical operations themes keep earning attention because they give people a usable next step. This week's opening draft leans into that: keep the system visible, keep the workflow simple, and let every post earn its place in the weekly pack.`,
       cta: 'Audit one part of your content system before Monday ends.',
       image_concept: 'Weekly operations board reset with top-performing content notes',

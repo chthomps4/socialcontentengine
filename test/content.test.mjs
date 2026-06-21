@@ -109,6 +109,19 @@ test('missing weeks can be seeded into a seven-day pending review pack', () => {
   assert.ok(seeded.every((post) => post.publishing_status === 'not_scheduled'));
 });
 
+test('weekly seed hook uses singular verb for newsletter-led context', () => {
+  const seeded = seedWeekPosts([{
+    ...basePost,
+    content_pillar: 'newsletter',
+    platform: 'newsletter',
+    impressions: '100',
+    engagements: '30',
+    conversions: '4'
+  }], '2026-06-15');
+
+  assert.match(seeded[0].hook, /content still does the heaviest lifting/);
+});
+
 test('metrics summary and PR body include required weekly fields', () => {
   const metricsSummary = summarizeMetrics([{
     ...basePost,
