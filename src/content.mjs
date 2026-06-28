@@ -430,6 +430,7 @@ export function generateThemeReport(posts) {
   const normalized = posts.map(normalizePost);
   const byPillar = aggregateBy(normalized, 'content_pillar');
   const byCampaign = aggregateBy(normalized, 'campaign');
+  const byPlatform = aggregateBy(normalized, 'platform');
   const best = byPillar[0];
 
   const lines = [
@@ -446,6 +447,10 @@ export function generateThemeReport(posts) {
     '## By Campaign',
     '',
     markdownTable(byCampaign),
+    '',
+    '## By Platform',
+    '',
+    markdownTable(byPlatform),
     '',
     '## Notes',
     '',

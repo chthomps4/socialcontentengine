@@ -11,7 +11,6 @@
 ## Data And Reporting
 
 - Store weekly metric snapshots separately from current metrics.
-- Add platform-level performance reporting.
 - Add campaign-level recommendations for the next weekly prompt.
 - Track approved image asset versions.
 

@@ -74,6 +74,7 @@ test('metrics import updates matching posts and report ranks themes', () => {
   assert.equal(updated[0].final_url, 'https://example.com/post');
   assert.equal(updated[0].engagements, '25');
   assert.match(generateThemeReport(updated), /systems/);
+  assert.match(generateThemeReport(updated), /LinkedIn/);
   assert.match(generateThemeReport(updated), /25.0%/);
 });
 
